@@ -31,6 +31,10 @@ else:
     gelu = F.gelu
     gelu_new = torch.jit.script(gelu_new)
 
+
+gelu = _gelu_python
+
+
 ACT2FN = {
     "relu": F.relu,
     "swish": swish,
