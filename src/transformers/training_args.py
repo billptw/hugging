@@ -1,5 +1,54 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Tuple
+
+import torch
+
+from .file_utils import cached_property
+
+
+@dataclass
+class ModelArguments:
+    """
+    Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
+    """
+
+    model_name_or_path: str = field(
+        metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
+    )
+    config_name: Optional[str] = field(
+        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
+    )
+    tokenizer_name: Optional[str] = field(
+        default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
+    )
+    cache_dir: Optional[str] = field(
+        default=None, metadata={"help": "Where do you want to store the pre-trained models downloaded from s3"}
+    )
+
+
+@dataclass
+class DataProcessingArguments:
+    """
+    Arguments pertaining to which 
+    """
+
+    task_name: str = field(metadata={"help": "The name of the task to train on (see list in relevant example script)"})
+    data_dir: str = field(
+        metadata={"help": "The input data dir. Should contain the .tsv files (or other data files) for the task."}
+    )
+    max_seq_length: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": "The maximum total input sequence length after tokenization. Sequences longer "
+            "than this will be truncated, sequences shorter will be padded."
+        },
+    )
+    overwrite_cache: bool = field(
+        default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
+    )
+
+    def __post_init__(self):
+        self.task_name = self.task_name.lower()
 
 
 @dataclass
@@ -73,3 +122,31 @@ class TrainingArguments:
         },
     )
     local_rank: int = field(default=-1, metadata={"help": "For distributed training: local_rank"})
+
+    @cached_property
+    def _setup_devices(self) -> Tuple[torch.device, int]:
+        if self.no_cuda:
+            device = torch.device("cpu")
+            n_gpu = 0
+        elif self.local_rank == -1:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            n_gpu = torch.cuda.device_count()
+        else:
+            # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
+            # torch.cuda.set_device(args.local_rank) # todo
+            device = torch.device("cuda", self.local_rank)
+            # torch.distributed.init_process_group(backend="nccl") # todo
+            n_gpu = 1
+        return device, n_gpu
+
+    @property
+    def device(self) -> torch.device:
+        return self._setup_devices[0]
+
+    @property
+    def n_gpu(self):
+        return self._setup_devices[1]
+
+    @property
+    def train_batch_size(self) -> int:
+        return self.per_gpu_train_batch_size * max(1, self.n_gpu)

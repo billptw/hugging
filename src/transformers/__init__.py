@@ -142,7 +142,7 @@ from .tokenization_utils import PreTrainedTokenizer
 from .tokenization_xlm import XLMTokenizer
 from .tokenization_xlm_roberta import XLMRobertaTokenizer
 from .tokenization_xlnet import SPIECE_UNDERLINE, XLNetTokenizer
-from .training_args import TrainingArguments
+from .training_args import DataProcessingArguments, ModelArguments, TrainingArguments
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
