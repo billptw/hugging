@@ -210,6 +210,11 @@ def train(args, train_dataset, model, tokenizer):
                 model.zero_grad()
                 global_step += 1
 
+                # with torch.no_grad():
+
+                print('Pruning model')
+
+
                 if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
                     logs = {}
                     if (
@@ -514,7 +519,7 @@ def main():
     print('Model trainable parameters:', trainable_params)
     print('Model named parameters:', len(named_params))
 
-    for name, values in named_params:
+    for name, values in list(model.named_parameters()):
         print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
 
     # Training
