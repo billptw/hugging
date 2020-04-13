@@ -176,7 +176,7 @@ def train(args, train_dataset, model, tokenizer):
 
         for name, module in list(model.named_modules()):
             if 'weight' in name:
-                # print(name)
+                print(name)
                 prune.random_unstructured(module, name="weight", amount=0.9)
                 print(module.weight)
         
