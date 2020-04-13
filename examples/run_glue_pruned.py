@@ -175,7 +175,7 @@ def train(args, train_dataset, model, tokenizer):
         print('Pruning Model...')
 
         for name, values in list(model.named_parameters()):
-            if name[-6] == 'weight':
+            if 'weight' in name:
                 print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
 
 
