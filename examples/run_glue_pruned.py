@@ -169,7 +169,10 @@ def train(args, train_dataset, model, tokenizer):
         params = list(model.parameters())
         total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
         print('Total size:', total_params)
-        print('Non-zero weights:', countZeroWeights(model))
+        zeros = countZeroWeights(model)
+        print('Zero weights:', zeros)
+        print('% pruned:', zeros/total_params*100)
+
         # params = list(model.parameters())
         # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
         # print('Model total parameters:', total_params)
