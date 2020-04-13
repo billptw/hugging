@@ -175,9 +175,9 @@ def train(args, train_dataset, model, tokenizer):
         print('Pruning Model...')
 
         for name, module in list(model.named_modules()):
-            if 'attention' in name:
+            if 'weight' in name:
                 # print(name)
-                try: prune.random_unstructured(module, name="weight", amount=0.3)
+                prune.random_unstructured(module, name="weight", amount=0.3)
         
         zeros = countZeroWeights(model)
 
