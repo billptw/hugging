@@ -165,19 +165,19 @@ def train(args, train_dataset, model, tokenizer):
     )
     set_seed(args)  # Added here for reproductibility
     for _ in train_iterator:
-        params = list(model.parameters())
-        total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-        print('Total size:', total_params)
+        # params = list(model.parameters())
+        # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
+        # print('Total size:', total_params)
         zeros = countZeroWeights(model)
-        print('Zero weights:', zeros)
-        print('% pruned:', zeros/total_params*100)
+        # print('Zero weights:', zeros)
+        # print('% pruned:', zeros/total_params*100)
 
         print('Pruning Model...')
 
-        for name, values in list(model.named_modules()):
+        for name, module in list(model.named_modules()):
             if 'attention' in name:
-                print(name)
-                print('*'*89)
+                # print(name)
+                prune.random_unstructured(module, name="weight", amount=0.3)
 
 
         # for name, values in list(model.named_parameters()):
@@ -359,10 +359,16 @@ def evaluate(args, model, tokenizer, prefix=""):
     return results
 
 def countZeroWeights(model):
+    params = list(model.parameters())
+    total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
+    print('Total size:', total_params)
+    zeros = countZeroWeights(model)
     zeros = 0
     for param in model.parameters():
         if param is not None:
             zeros += param.numel() - param.nonzero().size(0)
+    print('Zero weights:', zeros)
+    print('% pruned:', zeros/total_params*100)
     return zeros
 
 def load_and_cache_examples(args, task, tokenizer, evaluate=False):
