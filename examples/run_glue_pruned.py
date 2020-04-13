@@ -513,7 +513,9 @@ def main():
     print('Model total parameters:', total_params)
     print('Model trainable parameters:', trainable_params)
     print('Model named parameters:', len(named_params))
-    print(named_params)
+
+    for name, values in named_params:
+        print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
 
     # Training
     if args.do_train:
