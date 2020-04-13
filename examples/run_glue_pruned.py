@@ -165,13 +165,19 @@ def train(args, train_dataset, model, tokenizer):
     )
     set_seed(args)  # Added here for reproductibility
     for _ in train_iterator:
-        print('Pruning Model...')
         params = list(model.parameters())
         total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
         print('Total size:', total_params)
         zeros = countZeroWeights(model)
         print('Zero weights:', zeros)
         print('% pruned:', zeros/total_params*100)
+
+        print('Pruning Model...')
+
+        for name, values in list(model.named_parameters()):
+            if name[-6] == 'weight':
+                print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
+
 
         # params = list(model.parameters())
         # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
