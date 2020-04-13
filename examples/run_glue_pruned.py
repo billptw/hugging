@@ -178,7 +178,7 @@ def train(args, train_dataset, model, tokenizer):
             if 'weight' in name:
                 # print(name)
                 prune.random_unstructured(module, name="weight", amount=0.9)
-                # module._forward_pre_hooks
+                print(module.weight)
         
         zeros = countZeroWeights(model)
 
