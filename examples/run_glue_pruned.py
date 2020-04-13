@@ -165,7 +165,17 @@ def train(args, train_dataset, model, tokenizer):
     )
     set_seed(args)  # Added here for reproductibility
     for _ in train_iterator:
-        print('prune model')
+        print('Pruning Model...')
+        total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
+        print('Total size:', total_params)
+        print('Non-zero weights:', countZeroWeights(model))
+        # params = list(model.parameters())
+        # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
+        # print('Model total parameters:', total_params)
+
+        # for name, values in list(model.named_parameters()):
+        #     print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
+            
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
 
@@ -331,6 +341,12 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     return results
 
+def countZeroWeights(model):
+    zeros = 0
+    for param in model.parameters():
+        if param is not None:
+            zeros += param.numel() - param.nonzero().size(0)
+    return zeros
 
 def load_and_cache_examples(args, task, tokenizer, evaluate=False):
     if args.local_rank not in [-1, 0] and not evaluate:
