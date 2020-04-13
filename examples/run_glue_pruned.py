@@ -539,16 +539,16 @@ def main():
 
     logger.info("Training/evaluation parameters %s", args)
 
-    params = list(model.parameters())
-    named_params = list(model.named_parameters())
-    total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-    trainable_params = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters())])
-    print('Model total parameters:', total_params)
-    print('Model trainable parameters:', trainable_params)
-    print('Model named parameters:', len(named_params))
+    # params = list(model.parameters())
+    # named_params = list(model.named_parameters())
+    # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
+    # trainable_params = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters())])
+    # print('Model total parameters:', total_params)
+    # print('Model trainable parameters:', trainable_params)
+    # print('Model named parameters:', len(named_params))
 
-    for name, values in list(model.named_parameters()):
-        print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
+    # for name, values in list(model.named_parameters()):
+    #     print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
 
     # Training
     if args.do_train:
