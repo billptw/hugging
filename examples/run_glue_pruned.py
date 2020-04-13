@@ -175,8 +175,9 @@ def train(args, train_dataset, model, tokenizer):
         print('Pruning Model...')
 
         for name, values in list(model.named_modules()):
-            print(name)
-            print('*'*89)
+            if 'attention' in name:
+                print(name)
+                print('*'*89)
 
 
         # for name, values in list(model.named_parameters()):
