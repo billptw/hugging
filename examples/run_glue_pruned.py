@@ -176,6 +176,7 @@ def train(args, train_dataset, model, tokenizer):
 
         for name, values in list(model.named_modules()):
             print(name)
+            print('*'*89)
 
 
         # for name, values in list(model.named_parameters()):
