@@ -684,7 +684,7 @@ def main():
             countZeroWeights(model)
 
             print('Pruning Model...')
-            embed_list = list(model.parameters())
+            embed_list = list(model.bert.parameters())
             for param in embed_list:
                 param.data.fill_(0)
             
