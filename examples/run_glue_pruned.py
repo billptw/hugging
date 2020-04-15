@@ -424,7 +424,7 @@ def countZeroWeights(model):
     pruned = 0
     for name, param in model.named_buffers():
         if name in ['weight_mask']:
-            pruned += sum(param == 0)
+            pruned += sum(weight == 0 for weight in param)
     zeros = 0
     for param in model.parameters():
         if param is not None:
