@@ -321,9 +321,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                 if name in ['weight']:
                     # print(mod_name, name)
                     prune.random_unstructured(module, name="weight", amount=args.prune_eval)
-        # prune.random_unstructured(model.bert.embeddings, name="weight", amount=args.prune_eval)
-        # for layer in model.bert.encoder.layer:
-        #     prune.random_unstructured(layer, name="weight", amount=args.prune_eval)
+
         prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
         prune.random_unstructured(model.classifier, name="bias", amount=args.prune_eval)
 
