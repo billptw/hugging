@@ -228,7 +228,7 @@ def train(args, train_dataset, model, tokenizer):
             for layer_idx in layer_indexes:
                 for layer in list(layer_list[layer_idx].parameters()):
                     # param.requires_grad = False
-                    prune.random_unstructured(layer, name="weight", amount=args.prune)
+                    layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
                 print ("Pruned Layer: ", layer_idx)
 
 
