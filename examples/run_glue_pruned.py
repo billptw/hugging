@@ -316,14 +316,15 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
+        parameters_to_prune = []
         for mod_name, module in list(model.named_modules()):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
                     # print(mod_name, name)
-                    prune.random_unstructured(module, name="weight", amount=args.prune_eval)
+                    parameters_to_prune.append(module, 'weight')
+                    # prune.random_unstructured(module, name="weight", amount=args.prune_eval)
 
-        # prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
-        # prune.random_unstructured(model.classifier, name="bias", amount=args.prune_eval)
+        prune.unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
 
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
