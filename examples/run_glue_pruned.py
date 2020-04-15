@@ -333,7 +333,8 @@ def evaluate(args, model, tokenizer, prefix=""):
                     # prune.random_unstructured(module, name="weight", amount=args.prune_eval)
         prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
 
-        
+        countZeroWeights(model)
+
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
 
