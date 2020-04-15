@@ -681,12 +681,13 @@ def main():
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
             
+            countZeroWeights(model)
+            
             print('Pruning Model...')
             embed_list = list(model.parameters())
             for param in embed_list:
                 param.data.fill_(0)
             
-            countZeroWeights(model)
 
 
             model.to(args.device)
