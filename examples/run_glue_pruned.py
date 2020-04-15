@@ -220,7 +220,7 @@ def train(args, train_dataset, model, tokenizer):
         #             # value = value.new_zeros(value.size())
         #             value.data.fill_(0.01)
 
-        embed_list = list(model.bert.parameters())
+        embed_list = list(model.parameters())
         for param in embed_list:
             param.data.fill_(0)
         
