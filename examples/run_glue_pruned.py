@@ -324,7 +324,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                     parameters_to_prune.append((module, 'weight'))
                     # prune.random_unstructured(module, name="weight", amount=args.prune_eval)
 
-        prune.unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
+        prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
 
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
