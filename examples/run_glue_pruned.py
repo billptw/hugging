@@ -231,7 +231,7 @@ def train(args, train_dataset, model, tokenizer):
         #             layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
         #         print ("Pruned Layer: ", layer_idx)
 
-        model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+        # model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
 
         # for name, values in list(model.named_parameters()):
@@ -697,6 +697,8 @@ def main():
             
             # countZeroWeights(model)
             # zero(model)
+            model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+
             countZeroWeights(model)
 
             result = evaluate(args, model, tokenizer, prefix=prefix)
