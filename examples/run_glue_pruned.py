@@ -469,12 +469,14 @@ class DataProcessingArguments:
 
 
 def main():
-    # parser = HfArgumentParser((ModelArguments, DataProcessingArguments, TrainingArguments))
-    # model_args, dataprocessing_args, training_args = parser.parse_args_into_dataclasses()
+    parser = HfArgumentParser((ModelArguments, DataProcessingArguments, TrainingArguments))
+    model_args, dataprocessing_args, training_args = parser.parse_args_into_dataclasses()
 
-    # # For now, let's merge all the sets of args into one,
-    # # but soon, we'll keep distinct sets of args, with a cleaner separation of concerns.
-    # args = argparse.Namespace(**vars(model_args), **vars(dataprocessing_args), **vars(training_args))
+    # For now, let's merge all the sets of args into one,
+    # but soon, we'll keep distinct sets of args, with a cleaner separation of concerns.
+    args = argparse.Namespace(**vars(model_args), **vars(dataprocessing_args), **vars(training_args))
+
+    """
     parser = argparse.ArgumentParser()
 
     ## Required parameters
@@ -557,12 +559,13 @@ def main():
     parser.add_argument('--freeze_layers', type=str, default='', help="specify layer numbers to freeze during finetuning e.g. 0,1,2 to freeze first three layers")
     parser.add_argument('--freeze_embeddings', action='store_true', help="flag to freeze embeddings")
     parser.add_argument('--remove_layers', type=str, default='', help="specify layer numbers to remove during finetuning e.g. 0,1,2 to remove first three layers")
+    """
     parser.add_argument('--prune', type=float, default=0.99,
                         help="random seed for initialization")
 
     args = parser.parse_args()
 
-
+    print(args)
 
     if (
         os.path.exists(args.output_dir)
