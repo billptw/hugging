@@ -174,18 +174,22 @@ def train(args, train_dataset, model, tokenizer):
 
         print('Pruning Model...')
 
-        for mod_name, module in list(model.named_modules()):
-            for name, value in list(module.named_parameters()):
-                if name in ['weight']:
-                    # print(mod_name)
-                    # prune.random_unstructured(module, name="weight", amount=args.prune)
-                    value.data.fill_(0.01)
-                    print('zeroed', mod_name)
-                if name in ['bias']:
-                    # print(mod_name)
-                    # prune.random_unstructured(module, name="bias", amount=args.prune
-                    # value = value.new_zeros(value.size())
-                    value.data.fill_(0.01)
+        # for mod_name, module in list(model.named_modules()):
+        #     for name, value in list(module.named_parameters()):
+        #         if name in ['weight']:
+        #             # print(mod_name)
+        #             # prune.random_unstructured(module, name="weight", amount=args.prune)
+        #             value.data.fill_(0.01)
+        #             print('zeroed', mod_name)
+        #         if name in ['bias']:
+        #             # print(mod_name)
+        #             # prune.random_unstructured(module, name="bias", amount=args.prune
+        #             # value = value.new_zeros(value.size())
+        #             value.data.fill_(0.01)
+
+        embed_list = list(model.bert.embeddings.parameters())
+        for param in embed_list:
+            param.data.fill_(0)
 
         
         zeros = countZeroWeights(model)
