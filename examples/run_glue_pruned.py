@@ -214,6 +214,8 @@ def train(args, train_dataset, model, tokenizer):
                         elif args.prune == 'l1': prune.l1_unstructured(module, name='weight', amount=args.prune_train)
                         elif args.prune == 'random': prune.random_unstructured(module, name='weight', amount=args.prune_train)
             if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
+
+            prune.random_unstructured(model.classifier, name='weight', amount=args.prune_train)
         
         # print("Model parameters:", model_size(model))
         countZeroWeights(model)
