@@ -206,9 +206,9 @@ def train(args, train_dataset, model, tokenizer):
         #             value.data.fill_(0.01)
         #             print('zeroed', mod_name)
 
-        if args.prune > 0:
-            print('Pruning {} %', args.prune)
-            prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+        if args.prune_train > 0:
+            print('Pruning {} %', args.prune_train*100)
+            prune.random_unstructured(model.classifier, name="weight", amount=args.prune_train)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
@@ -313,10 +313,10 @@ def evaluate(args, model, tokenizer, prefix=""):
     eval_outputs_dirs = (args.output_dir, args.output_dir + "-MM") if args.task_name == "mnli" else (args.output_dir,)
 
     results = {}
-    
-    # print('Pruning....')
-    # prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
+    if args.prune_eval > 0:
+        print('Pruning {} %', args.prune_eval*100)
+        prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
@@ -488,7 +488,7 @@ class DataProcessingArguments:
     )
 
 def zero(model):
-    print('Pruning Model...')
+    print('Zeroing Model...')
     for param in list(model.classifier.parameters()):
         param.data.fill_(0)
 
@@ -500,10 +500,9 @@ def main():
     # but soon, we'll keep distinct sets of args, with a cleaner separation of concerns.
     args = argparse.Namespace(**vars(model_args), **vars(dataprocessing_args), **vars(training_args))
 
-    parser.add_argument('--prune', type=float, default=0.0,
-                        help="prune amount")
+    parser.add_argument('--prune_train', type=float, default=0.0)
+    parser.add_argument('--prune_eval', type=float, default=0.0)
     parser.add_argument('--prune_layers', type=str, default='', help="specify layer numbers to remove during finetuning e.g. 0,1,2 to remove first three layers")
-    parser.add_argument("--prune_eval", action='store_true')
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
 
@@ -661,16 +660,6 @@ def main():
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
             model.to(args.device)
-
-            if args.prune > 0 and args.prune_eval:
-                print('Pruning {} %', args.prune)
-                prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
-            
-            # countZeroWeights(model)
-            # zero(model)
-            # prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
-
-            # countZeroWeights(model)
 
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
