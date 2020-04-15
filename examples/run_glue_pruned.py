@@ -524,6 +524,8 @@ def main():
 
     parser.add_argument('--prune', type=float, default=0.99,
                         help="prune amount")
+    parser.add_argument("--do_lower_case", action='store_true',
+                        help="Set this flag if you are using an uncased model.")
 
     args = parser.parse_args()
 
