@@ -191,9 +191,6 @@ def train(args, train_dataset, model, tokenizer):
         for param in embed_list:
             param.data.fill_(0)
         
-
-
-        
         zeros = countZeroWeights(model)
 
 
@@ -313,6 +310,11 @@ def evaluate(args, model, tokenizer, prefix=""):
     eval_outputs_dirs = (args.output_dir, args.output_dir + "-MM") if args.task_name == "mnli" else (args.output_dir,)
 
     results = {}
+
+    embed_list = list(model.bert.parameters())
+    for param in embed_list:
+        param.data.fill_(0)
+        
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
 
