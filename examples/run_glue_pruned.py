@@ -231,21 +231,8 @@ def train(args, train_dataset, model, tokenizer):
         #             layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
         #         print ("Pruned Layer: ", layer_idx)
 
-        # model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
-
-
-        # for name, values in list(model.named_parameters()):
-        #     if 'weight' in name:
-        #         # print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
-        #         prune.random_unstructured(module, name="weight", amount=0.3)
-
-
-        # params = list(model.parameters())
-        # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-        # print('Model total parameters:', total_params)
-
-        # for name, values in list(model.named_parameters()):
-        #     print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
+        print('Pruning....')
+        prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
@@ -351,8 +338,8 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     results = {}
     
-    print('Pruning....')
-    prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+    # print('Pruning....')
+    # prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
