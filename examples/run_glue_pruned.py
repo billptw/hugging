@@ -224,7 +224,7 @@ def train(args, train_dataset, model, tokenizer):
         # for param in embed_list:
         #     param.data.fill_(0)
         
-        # zeros = countZeroWeights(model)
+        # countZeroWeights(model)
 
 
         # for name, values in list(model.named_parameters()):
@@ -680,12 +680,15 @@ def main():
 
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
+            
             print('Pruning Model...')
             embed_list = list(model.parameters())
             for param in embed_list:
                 param.data.fill_(0)
-        
-        zeros = countZeroWeights(model)
+            
+            countZeroWeights(model)
+
+
             model.to(args.device)
             countZeroWeights(model)
             result = evaluate(args, model, tokenizer, prefix=prefix)
