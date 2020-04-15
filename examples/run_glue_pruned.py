@@ -316,6 +316,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
+        prune.random_unstructured(model.bert, name="weight", amount=args.prune_eval)
         prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
         prune.random_unstructured(model.classifier, name="bias", amount=args.prune_eval)
 
