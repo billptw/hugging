@@ -697,7 +697,9 @@ def main():
             
             # countZeroWeights(model)
             # zero(model)
-            model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+            # model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+            pruner = prune.random_unstructured(amount=args.prune)
+            model.classifier.weight = pruner.prune(model.classifier.weight)
 
             countZeroWeights(model)
 
