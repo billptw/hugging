@@ -231,7 +231,7 @@ def train(args, train_dataset, model, tokenizer):
         #             layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
         #         print ("Pruned Layer: ", layer_idx)
 
-        print('Pruning....')
+        print('Pruning {} %', args.prune)
         prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
