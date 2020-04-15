@@ -216,7 +216,7 @@ def train(args, train_dataset, model, tokenizer):
             if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
         
         # print("Model parameters:", model_size(model))
-        countZeroWeights(mode)
+        countZeroWeights(model)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
