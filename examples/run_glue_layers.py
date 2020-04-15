@@ -649,9 +649,6 @@ def main():
             result = dict((k + '_{}'.format(global_step), v) for k, v in result.items())
             results.update(result)
     
-    for mod_name, module in list(model.named_modules()):
-        print(mod_name)
-
     return results
 
 
