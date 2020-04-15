@@ -395,6 +395,8 @@ def evaluate(args, model, tokenizer, prefix=""):
                 logger.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
+    countZeroWeights(model)
+
     return results
 
 def zero(model):
