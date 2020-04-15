@@ -661,7 +661,6 @@ def main():
         tokenizer = tokenizer_class.from_pretrained(args.output_dir)
         model.to(args.device)
 
-    countZeroWeights(model)
 
     # Evaluation
     results = {}
@@ -682,6 +681,7 @@ def main():
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
             model.to(args.device)
+            countZeroWeights(model)
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
             results.update(result)
