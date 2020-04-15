@@ -178,10 +178,11 @@ def train(args, train_dataset, model, tokenizer):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
                     # print(mod_name)
-                    prune.random_unstructured(module, name="weight", amount=args.prune)
+                    # prune.random_unstructured(module, name="weight", amount=args.prune)
+                    value.new_zeros(value.size())
                 if name in ['bias']:
                     # print(mod_name)
-                    prune.random_unstructured(module, name="bias", amount=args.prune)
+                    # prune.random_unstructured(module, name="bias", amount=args.prune)
         
         zeros = countZeroWeights(model)
 
