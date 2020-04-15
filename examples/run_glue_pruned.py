@@ -43,6 +43,27 @@ from transformers import (
     TrainingArguments,
     get_linear_schedule_with_warmup,
 )
+
+from transformers import (WEIGHTS_NAME, BertConfig,
+                                  BertForSequenceClassification, BertTokenizer,
+                                  RobertaConfig,
+                                  RobertaForSequenceClassification,
+                                  RobertaTokenizer,
+                                  XLMConfig, XLMForSequenceClassification,
+                                  XLMTokenizer, XLNetConfig,
+                                  XLNetForSequenceClassification,
+                                  XLNetTokenizer,
+                                  DistilBertConfig,
+                                  DistilBertForSequenceClassification,
+                                  DistilBertTokenizer,
+                                  AlbertConfig,
+                                  AlbertForSequenceClassification, 
+                                  AlbertTokenizer,
+                                  XLMRobertaConfig,
+                                  XLMRobertaForSequenceClassification,
+                                  XLMRobertaTokenizer,
+                                )
+                                
 from transformers import glue_compute_metrics as compute_metrics
 from transformers import glue_convert_examples_to_features as convert_examples_to_features
 from transformers import glue_output_modes as output_modes
@@ -59,8 +80,20 @@ logger = logging.getLogger(__name__)
 
 MODEL_CONFIG_CLASSES = list(MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
+# ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in MODEL_CONFIG_CLASSES), (),)
 
-ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in MODEL_CONFIG_CLASSES), (),)
+MODEL_CLASSES = {
+    'bert': (BertConfig, BertForSequenceClassification, BertTokenizer),
+    'xlnet': (XLNetConfig, XLNetForSequenceClassification, XLNetTokenizer),
+    'xlm': (XLMConfig, XLMForSequenceClassification, XLMTokenizer),
+    'roberta': (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer),
+    'distilbert': (DistilBertConfig, DistilBertForSequenceClassification, DistilBertTokenizer),
+    'albert': (AlbertConfig, AlbertForSequenceClassification, AlbertTokenizer),
+    'xlmroberta': (XLMRobertaConfig, XLMRobertaForSequenceClassification, XLMRobertaTokenizer),
+}
+ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig, XLNetConfig, XLMConfig, 
+                                                                                RobertaConfig, DistilBertConfig)), ())
+
 
 
 def set_seed(args):
@@ -549,21 +582,33 @@ def main():
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
     args.model_type = args.model_type.lower()
-    config = AutoConfig.from_pretrained(
-        args.config_name if args.config_name else args.model_name_or_path,
-        num_labels=num_labels,
-        finetuning_task=args.task_name,
-        cache_dir=args.cache_dir,
-    )
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, cache_dir=args.cache_dir,
-    )
-    model = AutoModelForSequenceClassification.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        config=config,
-        cache_dir=args.cache_dir,
-    )
+    # config = AutoConfig.from_pretrained(
+    #     args.config_name if args.config_name else args.model_name_or_path,
+    #     num_labels=num_labels,
+    #     finetuning_task=args.task_name,
+    #     cache_dir=args.cache_dir,
+    # )
+    # tokenizer = AutoTokenizer.from_pretrained(
+    #     args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, cache_dir=args.cache_dir,
+    # )
+    # model = AutoModelForSequenceClassification.from_pretrained(
+    #     args.model_name_or_path,
+    #     from_tf=bool(".ckpt" in args.model_name_or_path),
+    #     config=config,
+    #     cache_dir=args.cache_dir,
+    # )
+    config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
+    config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path,
+                                          num_labels=num_labels,
+                                          finetuning_task=args.task_name,
+                                          cache_dir=args.cache_dir if args.cache_dir else None)
+    tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
+                                                do_lower_case=args.do_lower_case,
+                                                cache_dir=args.cache_dir if args.cache_dir else None)
+    model = model_class.from_pretrained(args.model_name_or_path,
+                                        from_tf=bool('.ckpt' in args.model_name_or_path),
+                                        config=config,
+                                        cache_dir=args.cache_dir if args.cache_dir else None)
 
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
@@ -608,14 +653,17 @@ def main():
         torch.save(args, os.path.join(args.output_dir, "training_args.bin"))
 
         # Load a trained model and vocabulary that you have fine-tuned
-        model = AutoModelForSequenceClassification.from_pretrained(args.output_dir)
-        tokenizer = AutoTokenizer.from_pretrained(args.output_dir)
+        # model = AutoModelForSequenceClassification.from_pretrained(args.output_dir)
+        # tokenizer = AutoTokenizer.from_pretrained(args.output_dir)
+        model = model_class.from_pretrained(args.output_dir)
+        tokenizer = tokenizer_class.from_pretrained(args.output_dir)
         model.to(args.device)
 
     # Evaluation
     results = {}
     if args.do_eval and args.local_rank in [-1, 0]:
-        tokenizer = AutoTokenizer.from_pretrained(args.output_dir)
+        # tokenizer = AutoTokenizer.from_pretrained(args.output_dir)
+        tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         checkpoints = [args.output_dir]
         if args.eval_all_checkpoints:
             checkpoints = list(
@@ -627,7 +675,8 @@ def main():
             global_step = checkpoint.split("-")[-1] if len(checkpoints) > 1 else ""
             prefix = checkpoint.split("/")[-1] if checkpoint.find("checkpoint") != -1 else ""
 
-            model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
+            # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
+            model = model_class.from_pretrained(checkpoint)
             model.to(args.device)
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
