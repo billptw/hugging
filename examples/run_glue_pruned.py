@@ -317,6 +317,8 @@ def evaluate(args, model, tokenizer, prefix=""):
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
         prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
+        prune.random_unstructured(model.classifier, name="bias", amount=args.prune_eval)
+
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
