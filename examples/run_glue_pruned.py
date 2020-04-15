@@ -682,14 +682,12 @@ def main():
             model = model_class.from_pretrained(checkpoint)
             
             countZeroWeights(model)
-            
+
             print('Pruning Model...')
             embed_list = list(model.parameters())
             for param in embed_list:
                 param.data.fill_(0)
             
-
-
             model.to(args.device)
             countZeroWeights(model)
             result = evaluate(args, model, tokenizer, prefix=prefix)
