@@ -198,13 +198,7 @@ def train(args, train_dataset, model, tokenizer):
     )
     set_seed(args)  # Added here for reproductibility
     for _ in train_iterator:
-        # params = list(model.parameters())
-        # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-        # print('Total size:', total_params)
-        zeros = countZeroWeights(model)
-        # print('Zero weights:', zeros)
-        # print('% pruned:', zeros/total_params*100)
-
+        # countZeroWeights(model)
 
         # for mod_name, module in list(model.named_modules()):
         #     for name, value in list(module.named_parameters()):
@@ -225,12 +219,23 @@ def train(args, train_dataset, model, tokenizer):
         #     param.data.fill_(0)
         
         # countZeroWeights(model)
+        if args.model_type == "bert":
+            embed_list = list(model.bert.embeddings.parameters())
+            layer_list = model.bert.encoder.layer
+
+        if args.prune > 0:
+            layer_indexes = [int(x) for x in args.prune_layers.split(",")]
+            for layer_idx in layer_indexes:
+                for layer in list(layer_list[layer_idx].parameters()):
+                    # param.requires_grad = False
+                    prune.random_unstructured(layer, name="weight", amount=args.prune)
+                print ("Pruned Layer: ", layer_idx)
 
 
-        # for name, values in list(model.named_parameters()):
-        #     if 'weight' in name:
-        #         # print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
-        #         prune.random_unstructured(module, name="weight", amount=0.3)
+        for name, values in list(model.named_parameters()):
+            if 'weight' in name:
+                # print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
+                prune.random_unstructured(module, name="weight", amount=0.3)
 
 
         # params = list(model.parameters())
@@ -526,8 +531,10 @@ def main():
     # but soon, we'll keep distinct sets of args, with a cleaner separation of concerns.
     args = argparse.Namespace(**vars(model_args), **vars(dataprocessing_args), **vars(training_args))
 
-    parser.add_argument('--prune', type=float, default=0.99,
+    parser.add_argument('--prune', type=float, default=0.0,
                         help="prune amount")
+    parser.add_argument('--prune_layers', type=str, default='', help="specify layer numbers to remove during finetuning e.g. 0,1,2 to remove first three layers")
+
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
 
