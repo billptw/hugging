@@ -350,11 +350,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     eval_outputs_dirs = (args.output_dir, args.output_dir + "-MM") if args.task_name == "mnli" else (args.output_dir,)
 
     results = {}
-
-    # embed_list = list(model.bert.parameters())
-    # for param in embed_list:
-    #     param.data.fill_(0)
-
+    
     print('Pruning....')
     prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
@@ -426,10 +422,15 @@ def countZeroWeights(model):
     total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
     print('Total size:', total_params)
     zeros = 0
+    for name, param in model.named_parameters():
+        if name in ['weight_mask']:
+            zeros += sum(pamam == 0)
+    pruned = 0
     for param in model.parameters():
         if param is not None:
             zeros += param.numel() - param.nonzero().size(0)
     print('Zero weights:', zeros)
+    print('% zeroed:', zeros/total_params*100)
     print('% pruned:', zeros/total_params*100)
     return zeros
 
