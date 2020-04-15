@@ -316,7 +316,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
-        prune.random_unstructured(model.bert.embeddings, name="weight", amount=args.prune_eval)
+        # prune.random_unstructured(model.bert.embeddings, name="weight", amount=args.prune_eval)
         for layer in model.bert.encoder.layer:
             prune.random_unstructured(layer, name="weight", amount=args.prune_eval)
         prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
