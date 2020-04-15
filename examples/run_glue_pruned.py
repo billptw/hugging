@@ -232,10 +232,10 @@ def train(args, train_dataset, model, tokenizer):
                 print ("Pruned Layer: ", layer_idx)
 
 
-        for name, values in list(model.named_parameters()):
-            if 'weight' in name:
-                # print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
-                prune.random_unstructured(module, name="weight", amount=0.3)
+        # for name, values in list(model.named_parameters()):
+        #     if 'weight' in name:
+        #         # print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
+        #         prune.random_unstructured(module, name="weight", amount=0.3)
 
 
         # params = list(model.parameters())
