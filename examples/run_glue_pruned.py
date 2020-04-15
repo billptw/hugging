@@ -198,17 +198,16 @@ def train(args, train_dataset, model, tokenizer):
     )
     set_seed(args)  # Added here for reproductibility
     for _ in train_iterator:
-        # for mod_name, module in list(model.named_modules()):
-        #     for name, value in list(module.named_parameters()):
-        #         if name in ['weight']:
-        #             # print(mod_name)
-        #             # prune.random_unstructured(module, name="weight", amount=args.prune)
-        #             value.data.fill_(0.01)
-        #             print('zeroed', mod_name)
 
         if args.prune_train > 0:
             print('Pruning {} %'.format(args.prune_train*100))
-            prune.random_unstructured(model.classifier, name="weight", amount=args.prune_train)
+            for mod_name, module in list(model.named_modules()):
+                for name, value in list(module.named_parameters()):
+                    if name in ['weight']:
+                        # print(mod_name, name)
+                        # parameters_to_prune.append((module, 'weight'))
+                        prune.l1_unstructured(module, name="weight", amount=args.prune_train)
+            # prune.random_unstructured(model.classifier, name="weight", amount=args.prune_train)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
@@ -323,7 +322,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                     # print(mod_name, name)
                     parameters_to_prune.append((module, 'weight'))
                     # prune.random_unstructured(module, name="weight", amount=args.prune_eval)
-                    
+
 
         prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
 
