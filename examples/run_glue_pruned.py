@@ -352,7 +352,8 @@ def evaluate(args, model, tokenizer, prefix=""):
     results = {}
     
     print('Pruning....')
-    prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+    m = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+    print('num pruned:', torch.sum(m.weight_mask == 0))
 
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
