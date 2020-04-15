@@ -201,6 +201,9 @@ def train(args, train_dataset, model, tokenizer):
 
         if args.prune_train > 0:
             print('Pruning {} %'.format(args.prune_train*100))
+            if args.prune == 'global': print('Global Pruning')
+            elif args.prune == 'l1': print('L1 Pruning')
+            elif args.prune == 'random': print('Random Pruning')
             parameters_to_prune = []
             for mod_name, module in list(model.named_modules()):
                 for name, value in list(module.named_parameters()):
