@@ -515,7 +515,7 @@ class DataProcessingArguments:
 
 def zero(model):
     print('Pruning Model...')
-    for param in list(model.bert.parameters()):
+    for param in list(model.classifier.parameters()):
         param.data.fill_(0)
 
 def main():
@@ -684,12 +684,12 @@ def main():
 
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
+            model.to(args.device)
             
             countZeroWeights(model)
-            # zero(model)
+            zero(model)
             countZeroWeights(model)
 
-            model.to(args.device)
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
             results.update(result)
