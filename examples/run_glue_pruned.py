@@ -407,7 +407,7 @@ def countZeroWeights(model):
     print('Total size:', total_params)
     pruned = 0
     for param in model.parameters():
-        pruned += sum(param == 0)
+        pruned += torch.sum(param == 0)
     zeros = 0
     for param in model.parameters():
         if param is not None:
