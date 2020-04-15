@@ -351,9 +351,13 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     results = {}
 
-    embed_list = list(model.bert.parameters())
-    for param in embed_list:
-        param.data.fill_(0)
+    # embed_list = list(model.bert.parameters())
+    # for param in embed_list:
+    #     param.data.fill_(0)
+
+    print('Pruning....')
+    prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
@@ -697,9 +701,7 @@ def main():
             
             # countZeroWeights(model)
             # zero(model)
-            # model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
-            pruner = prune.RandomUnstructured(amount=args.prune)
-            model.classifier.weight = pruner.prune(model.classifier.weight)
+            # prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
             countZeroWeights(model)
 
