@@ -219,17 +219,19 @@ def train(args, train_dataset, model, tokenizer):
         #     param.data.fill_(0)
         
         # countZeroWeights(model)
-        if args.model_type == "bert":
-            embed_list = list(model.bert.embeddings.parameters())
-            layer_list = model.bert.encoder.layer
+        # if args.model_type == "bert":
+        #     embed_list = list(model.bert.embeddings.parameters())
+        #     layer_list = model.bert.encoder.layer
 
-        if args.prune > 0:
-            layer_indexes = [int(x) for x in args.prune_layers.split(",")]
-            for layer_idx in layer_indexes:
-                for layer in list(layer_list[layer_idx].parameters()):
-                    # param.requires_grad = False
-                    layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
-                print ("Pruned Layer: ", layer_idx)
+        # if args.prune > 0:
+        #     layer_indexes = [int(x) for x in args.prune_layers.split(",")]
+        #     for layer_idx in layer_indexes:
+        #         for layer in list(layer_list[layer_idx].parameters()):
+        #             # param.requires_grad = False
+        #             layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
+        #         print ("Pruned Layer: ", layer_idx)
+
+        model.classifier = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
 
         # for name, values in list(model.named_parameters()):
