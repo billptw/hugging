@@ -207,7 +207,7 @@ def train(args, train_dataset, model, tokenizer):
         #             print('zeroed', mod_name)
 
         if args.prune_train > 0:
-            print('Pruning {} %', args.prune_train*100)
+            print('Pruning {} %'.format(args.prune_train*100))
             prune.random_unstructured(model.classifier, name="weight", amount=args.prune_train)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
@@ -315,7 +315,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     results = {}
 
     if args.prune_eval > 0:
-        print('Pruning {} %', args.prune_eval*100)
+        print('Pruning {} %'.format(args.prune_eval*100))
         prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
