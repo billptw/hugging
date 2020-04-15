@@ -686,8 +686,8 @@ def main():
             model = model_class.from_pretrained(checkpoint)
             model.to(args.device)
             
-            countZeroWeights(model)
-            zero(model)
+            # countZeroWeights(model)
+            # zero(model)
             countZeroWeights(model)
 
             result = evaluate(args, model, tokenizer, prefix=prefix)
