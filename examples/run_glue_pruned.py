@@ -205,29 +205,6 @@ def train(args, train_dataset, model, tokenizer):
         #             # prune.random_unstructured(module, name="weight", amount=args.prune)
         #             value.data.fill_(0.01)
         #             print('zeroed', mod_name)
-        #         if name in ['bias']:
-        #             # print(mod_name)
-        #             # prune.random_unstructured(module, name="bias", amount=args.prune
-        #             # value = value.new_zeros(value.size())
-        #             value.data.fill_(0.01)
-
-        # print('Pruning Model...')
-        # embed_list = list(model.parameters())
-        # for param in embed_list:
-        #     param.data.fill_(0)
-        
-        # countZeroWeights(model)
-        # if args.model_type == "bert":
-        #     embed_list = list(model.bert.embeddings.parameters())
-        #     layer_list = model.bert.encoder.layer
-
-        # if args.prune > 0:
-        #     layer_indexes = [int(x) for x in args.prune_layers.split(",")]
-        #     for layer_idx in layer_indexes:
-        #         for layer in list(layer_list[layer_idx].parameters()):
-        #             # param.requires_grad = False
-        #             layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
-        #         print ("Pruned Layer: ", layer_idx)
 
         if args.prune > 0:
             print('Pruning {} %', args.prune)
@@ -526,7 +503,7 @@ def main():
     parser.add_argument('--prune', type=float, default=0.0,
                         help="prune amount")
     parser.add_argument('--prune_layers', type=str, default='', help="specify layer numbers to remove during finetuning e.g. 0,1,2 to remove first three layers")
-
+    parser.add_argument("--prune_eval", action='store_true')
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
 
@@ -684,6 +661,10 @@ def main():
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
             model.to(args.device)
+
+            if args.prune > 0 and args.prune_eval:
+                print('Pruning {} %', args.prune)
+                prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
             
             # countZeroWeights(model)
             # zero(model)
