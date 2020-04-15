@@ -201,13 +201,15 @@ def train(args, train_dataset, model, tokenizer):
 
         if args.prune_train > 0:
             print('Pruning {} %'.format(args.prune_train*100))
+            parameters_to_prune = []
             for mod_name, module in list(model.named_modules()):
                 for name, value in list(module.named_parameters()):
                     if name in ['weight']:
                         # print(mod_name, name)
-                        # parameters_to_prune.append((module, 'weight'))
-                        prune.l1_unstructured(module, name="weight", amount=args.prune_train)
-            # prune.random_unstructured(model.classifier, name="weight", amount=args.prune_train)
+                        if args.prune == 'global': parameters_to_prune.append((module, 'weight'))
+                        elif args.prune == 'l1': prune.l1_unstructured(module, name="weight", amount=args.prune_train)
+                        elif args.prune == 'random': prune.random_structured(module, name="weight", amount=args.prune_train)
+            prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
@@ -322,8 +324,6 @@ def evaluate(args, model, tokenizer, prefix=""):
                     # print(mod_name, name)
                     parameters_to_prune.append((module, 'weight'))
                     # prune.random_unstructured(module, name="weight", amount=args.prune_eval)
-
-
         prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
 
         
@@ -511,7 +511,8 @@ def main():
 
     parser.add_argument('--prune_train', type=float, default=0.0)
     parser.add_argument('--prune_eval', type=float, default=0.0)
-    parser.add_argument('--prune_layers', type=str, default='', help="specify layer numbers to remove during finetuning e.g. 0,1,2 to remove first three layers")
+    parser.add_argument('--prune', type=str, default='random', help="default=random, global, l1")
+    parser.add_argument('--prune_layers', type=str, default='')
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
 
