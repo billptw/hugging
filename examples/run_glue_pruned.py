@@ -328,7 +328,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         for mod_name, module in list(model.named_modules()):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
-                    # print(mod_name, name)
+                    print(module, name)
                     parameters_to_prune.append((module, 'weight'))
                     # prune.random_unstructured(module, name="weight", amount=args.prune_eval)
         prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
