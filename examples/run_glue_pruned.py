@@ -320,7 +320,7 @@ def evaluate(args, model, tokenizer, prefix=""):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
                     # print(mod_name, name)
-                    prune.random_unstructured(module, name="weight", amount=args.prune_eval)
+                    prune.l1_unstructured(module, name="weight", amount=args.prune_eval)
 
         # prune.random_unstructured(model.classifier, name="weight", amount=args.prune_eval)
         # prune.random_unstructured(model.classifier, name="bias", amount=args.prune_eval)
