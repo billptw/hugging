@@ -431,7 +431,7 @@ def countZeroWeights(model):
             zeros += param.numel() - param.nonzero().size(0)
     print('Zero weights:', zeros)
     print('% zeroed:', zeros/total_params*100)
-    print('% pruned:', pruned/total_params*100)
+    print('Numel pruned:', pruned)
 
 def load_and_cache_examples(args, task, tokenizer, evaluate=False):
     if args.local_rank not in [-1, 0] and not evaluate:
