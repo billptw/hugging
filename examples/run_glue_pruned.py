@@ -316,6 +316,11 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
+        for mod_name, module in list(model.named_modules()):
+            for name, value in list(module.named_parameters()):
+                if name in ['weight']:
+                    print(mod_name, name)
+                    # prune.random_unstructured(module, name="weight", amount=args.prune)
         # prune.random_unstructured(model.bert.embeddings, name="weight", amount=args.prune_eval)
         # for layer in model.bert.encoder.layer:
         #     prune.random_unstructured(layer, name="weight", amount=args.prune_eval)
