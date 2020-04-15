@@ -513,6 +513,10 @@ class DataProcessingArguments:
         default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
     )
 
+def zero(model):
+    print('Pruning Model...')
+    for param in list(model.parameters()):
+        param.data.fill_(0)
 
 def main():
     parser = HfArgumentParser((ModelArguments, DataProcessingArguments, TrainingArguments))
@@ -681,15 +685,11 @@ def main():
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
             
-            countZeroWeights(model)
+            # countZeroWeights(model)
+            # zero(model)
+            # countZeroWeights(model)
 
-            print('Pruning Model...')
-            embed_list = list(model.parameters())
-            for param in embed_list:
-                param.data.fill_(0)
-                
             model.to(args.device)
-            countZeroWeights(model)
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
             results.update(result)
