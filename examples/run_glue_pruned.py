@@ -421,18 +421,17 @@ def countZeroWeights(model):
     params = list(model.parameters())
     total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
     print('Total size:', total_params)
-    zeros = 0
+    pruned = 0
     for name, param in model.named_parameters():
         if name in ['weight_mask']:
-            zeros += sum(pamam == 0)
-    pruned = 0
+            zeros += sum(param == 0)
+    zeros = 0
     for param in model.parameters():
         if param is not None:
             zeros += param.numel() - param.nonzero().size(0)
     print('Zero weights:', zeros)
     print('% zeroed:', zeros/total_params*100)
-    print('% pruned:', zeros/total_params*100)
-    return zeros
+    print('% pruned:', pruned/total_params*100)
 
 def load_and_cache_examples(args, task, tokenizer, evaluate=False):
     if args.local_rank not in [-1, 0] and not evaluate:
