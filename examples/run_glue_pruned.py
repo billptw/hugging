@@ -205,7 +205,6 @@ def train(args, train_dataset, model, tokenizer):
         # print('Zero weights:', zeros)
         # print('% pruned:', zeros/total_params*100)
 
-        print('Pruning Model...')
 
         # for mod_name, module in list(model.named_modules()):
         #     for name, value in list(module.named_parameters()):
@@ -220,11 +219,12 @@ def train(args, train_dataset, model, tokenizer):
         #             # value = value.new_zeros(value.size())
         #             value.data.fill_(0.01)
 
-        embed_list = list(model.parameters())
-        for param in embed_list:
-            param.data.fill_(0)
+        # print('Pruning Model...')
+        # embed_list = list(model.parameters())
+        # for param in embed_list:
+        #     param.data.fill_(0)
         
-        zeros = countZeroWeights(model)
+        # zeros = countZeroWeights(model)
 
 
         # for name, values in list(model.named_parameters()):
@@ -680,6 +680,12 @@ def main():
 
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model = model_class.from_pretrained(checkpoint)
+            print('Pruning Model...')
+            embed_list = list(model.parameters())
+            for param in embed_list:
+                param.data.fill_(0)
+        
+        zeros = countZeroWeights(model)
             model.to(args.device)
             countZeroWeights(model)
             result = evaluate(args, model, tokenizer, prefix=prefix)
