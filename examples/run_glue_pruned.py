@@ -352,8 +352,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     results = {}
     
     print('Pruning....')
-    m = prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
-    print('num pruned:', torch.sum(m.weight_mask == 0))
+    prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
         
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
@@ -423,7 +422,7 @@ def countZeroWeights(model):
     total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
     print('Total size:', total_params)
     pruned = 0
-    for name, param in model.named_parameters():
+    for name, param in model.named_buffers():
         if name in ['weight_mask']:
             pruned += sum(param == 0)
     zeros = 0
