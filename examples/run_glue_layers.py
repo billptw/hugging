@@ -558,7 +558,7 @@ def main():
             print ("Froze Embedding Layer")
     #print (list(model.bert.embeddings.parameters()))
 
-    if freeze_layers is not "":
+    if freeze_layers != "":
         layer_indexes = [int(x) for x in freeze_layers.split(",")]
         for layer_idx in layer_indexes:
             for param in list(layer_list[layer_idx].parameters()):
@@ -578,7 +578,7 @@ def main():
 
         # check for model reduction
         remove_layers = args.remove_layers
-        if remove_layers is not "":
+        if remove_layers != "":
             layer_indexes = [int(x) for x in remove_layers.split(",")]
             layer_indexes.sort(reverse=True)
             for layer_idx in layer_indexes:
