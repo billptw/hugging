@@ -198,8 +198,6 @@ def train(args, train_dataset, model, tokenizer):
     )
     set_seed(args)  # Added here for reproductibility
     for _ in train_iterator:
-        # countZeroWeights(model)
-
         # for mod_name, module in list(model.named_modules()):
         #     for name, value in list(module.named_parameters()):
         #         if name in ['weight']:
@@ -231,8 +229,9 @@ def train(args, train_dataset, model, tokenizer):
         #             layer = prune.random_unstructured(layer, name="weight", amount=args.prune)
         #         print ("Pruned Layer: ", layer_idx)
 
-        print('Pruning {} %', args.prune)
-        prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
+        if args.prune > 0:
+            print('Pruning {} %', args.prune)
+            prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
@@ -690,14 +689,12 @@ def main():
             # zero(model)
             # prune.random_unstructured(model.classifier, name="weight", amount=args.prune)
 
-            countZeroWeights(model)
+            # countZeroWeights(model)
 
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
             results.update(result)
-            countZeroWeights(model)
-
-
+            # countZeroWeights(model)
     return results
 
 
