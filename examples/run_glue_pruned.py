@@ -396,14 +396,18 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     return results
 
+def zero(model):
+    print('Zeroing Model...')
+    for param in list(model.classifier.parameters()):
+        param.data.fill_(0)
+
 def countZeroWeights(model):
     params = list(model.parameters())
     total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
     print('Total size:', total_params)
     pruned = 0
-    for name, param in model.named_buffers():
-        if name in ['weight_mask']:
-            pruned += sum(weight == 0 for weight in param)
+    for param in model.parameters():
+        pruned += sum(weight == 0)
     zeros = 0
     for param in model.parameters():
         if param is not None:
@@ -507,11 +511,6 @@ class DataProcessingArguments:
     overwrite_cache: bool = field(
         default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
     )
-
-def zero(model):
-    print('Zeroing Model...')
-    for param in list(model.classifier.parameters()):
-        param.data.fill_(0)
 
 def main():
     parser = HfArgumentParser((ModelArguments, DataProcessingArguments, TrainingArguments))
