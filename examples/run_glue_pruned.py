@@ -209,9 +209,10 @@ def train(args, train_dataset, model, tokenizer):
                 for name, value in list(module.named_parameters()):
                     if name in ['weight']:
                         # print(mod_name, name)
+                        if prune.is_pruned(module): prune.remove(module, 'weight')
                         if args.prune == 'global': parameters_to_prune.append((module, 'weight'))
-                        elif args.prune == 'l1': prune.l1_unstructured(module, name="weight", amount=args.prune_train)
-                        elif args.prune == 'random': prune.random_unstructured(module, name="weight", amount=args.prune_train)
+                        elif args.prune == 'l1': prune.l1_unstructured(module, name='weight', amount=args.prune_train)
+                        elif args.prune == 'random': prune.random_unstructured(module, name='weight', amount=args.prune_train)
             if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
             
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
