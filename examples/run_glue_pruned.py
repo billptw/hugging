@@ -197,29 +197,30 @@ def train(args, train_dataset, model, tokenizer):
         epochs_trained, int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0],
     )
     set_seed(args)  # Added here for reproductibility
-    for _ in train_iterator:
 
-        if args.prune_train > 0:
-            print('Pruning {} %'.format(args.prune_train*100))
-            if args.prune == 'global': print('Global Pruning')
-            elif args.prune == 'l1': print('L1 Pruning')
-            elif args.prune == 'random': print('Random Pruning')
-            parameters_to_prune = []
-            for mod_name, module in list(model.named_modules()):
-                for name, value in list(module.named_parameters()):
-                    if name in ['weight']:
-                        # print(mod_name, name)
-                        if prune.is_pruned(module): prune.remove(module, 'weight')
-                        if args.prune == 'global': parameters_to_prune.append((module, 'weight'))
-                        elif args.prune == 'l1': prune.l1_unstructured(module, name='weight', amount=args.prune_train)
-                        elif args.prune == 'random': prune.random_unstructured(module, name='weight', amount=args.prune_train)
-            if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
+    if args.prune_train > 0:
+        print('Pruning {} %'.format(args.prune_train*100))
+        if args.prune == 'global': print('Global Pruning')
+        elif args.prune == 'l1': print('L1 Pruning')
+        elif args.prune == 'random': print('Random Pruning')
+        parameters_to_prune = []
+        for mod_name, module in list(model.named_modules()):
+            for name, value in list(module.named_parameters()):
+                if name in ['weight']:
+                    # print(mod_name, name)
+                    if prune.is_pruned(module): prune.remove(module, 'weight')
+                    if args.prune == 'global': parameters_to_prune.append((module, 'weight'))
+                    elif args.prune == 'l1': prune.l1_unstructured(module, name='weight', amount=args.prune_train)
+                    elif args.prune == 'random': prune.random_unstructured(module, name='weight', amount=args.prune_train)
+        if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
 
-            prune.l1_unstructured(model.classifier, name='weight', amount=args.prune_train)
+        prune.l1_unstructured(model.classifier, name='weight', amount=args.prune_train)
+    
+    # print("Model parameters:", model_size(model))
+    countZeroWeights(model)
+
         
-        # print("Model parameters:", model_size(model))
-        countZeroWeights(model)
-            
+    for _ in train_iterator:            
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
 
