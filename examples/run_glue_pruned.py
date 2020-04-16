@@ -748,9 +748,12 @@ def main():
             model = model_class.from_pretrained(checkpoint)
 
             for mod_name, module in list(model.named_modules()):
-                if prune.is_pruned(module): 
-                    prune.remove(module, 'weight')
-                    print('removed', mod_name)
+                for name, value in list(module.named_parameters()):
+                    print(mod_name, name)
+
+                # if prune.is_pruned(module): 
+                #     prune.remove(module, 'weight')
+                #     print('removed', mod_name)
 
             countZeroWeights(model)
 
