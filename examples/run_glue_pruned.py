@@ -752,6 +752,8 @@ def main():
                     prune.remove(module, 'weight')
                     print('removed', mod_name)
 
+            countZeroWeights(model)
+
 
             model.to(args.device)
 
