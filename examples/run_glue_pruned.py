@@ -209,7 +209,7 @@ def train(args, train_dataset, model, tokenizer):
                 if name in ['weight']:
                     print(mod_name, name)
                     print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-                    # if prune.is_pruned(module): prune.remove(module, 'weight')
+                    if prune.is_pruned(module): prune.remove(module, 'weight')
                     if args.prune == 'global': parameters_to_prune.append((module, 'weight'))
                     elif args.prune == 'l1': prune.l1_unstructured(module, name='weight', amount=args.prune_train)
                     elif args.prune == 'random': prune.random_unstructured(module, name='weight', amount=args.prune_train)
