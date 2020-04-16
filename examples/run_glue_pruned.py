@@ -337,12 +337,12 @@ def evaluate(args, model, tokenizer, prefix=""):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
                     print(mod_name, name)
-                    print('weights before {}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+                    print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
                     if prune.is_pruned(module): prune.remove(module, 'weight')
                     if args.prune == 'global': parameters_to_prune.append((module, name))
                     elif args.prune == 'l1': module = prune.l1_unstructured(module, name=name, amount=args.prune_eval)
                     elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
-                    print('weights pruned {}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+                    print('weights pruned {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
 
         if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
         # print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
@@ -427,11 +427,10 @@ def countZeroWeights(model):
     total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
     print('Total size:', total_params)
     pruned = 0
-    # for mod_name, module in list(model.named_modules()):
-    for name, value in list(model.named_parameters()):
-        # if name in ['weight']:
-        pruned += float(torch.sum(value == 0))
-    print('classifier pruned', float(torch.sum(model.classifier.weight == 0)))
+    for mod_name, module in list(model.named_modules()):
+        for name, value in list(module.named_parameters()):
+            if name in ['weight']:
+                pruned += float(torch.sum(module.weight == 0))
     zeros = 0
     for param in model.parameters():
         if param is not None:
@@ -439,6 +438,7 @@ def countZeroWeights(model):
     print('Zero weights:', zeros)
     print('% zeroed:', zeros/total_params*100)
     print('Numel pruned:', pruned)
+    print('% pruned:', pruned/total_params*100)
 
 def model_size(model):
     params = list(model.parameters())
