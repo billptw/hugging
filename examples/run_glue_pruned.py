@@ -334,7 +334,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         for mod_name, module in list(model.named_modules()):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
-                    # print(mod_name, name)
+                    print(mod_name, name)
                     if prune.is_pruned(module): prune.remove(module, 'weight')
                     if args.prune == 'global': parameters_to_prune.append((module, name))
                     elif args.prune == 'l1': module = prune.l1_unstructured(module, name=name, amount=args.prune_eval)
@@ -419,8 +419,8 @@ def countZeroWeights(model):
     pruned = 0
     for mod_name, module in list(model.named_modules()):
         for name, value in list(module.named_parameters()):
-            # if name in ['weight']:
-            pruned += float(torch.sum(value == 0))
+            if name in ['weight']:
+                pruned += float(torch.sum(value == 0))
     zeros = 0
     for param in model.parameters():
         if param is not None:
