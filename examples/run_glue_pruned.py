@@ -325,6 +325,8 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     results = {}
 
+    countZeroWeights(model)
+
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
         if args.prune == 'global': print('Global Pruning')
