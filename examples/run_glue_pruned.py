@@ -343,7 +343,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                     elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
         if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
         print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
-        prune.(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
+        prune.l1_unstructured(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
         print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
 
 
