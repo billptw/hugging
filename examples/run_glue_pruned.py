@@ -327,14 +327,19 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     if args.prune_eval > 0:
         print('Pruning {} %'.format(args.prune_eval*100))
+        if args.prune == 'global': print('Global Pruning')
+        elif args.prune == 'l1': print('L1 Pruning')
+        elif args.prune == 'random': print('Random Pruning')
         parameters_to_prune = []
         for mod_name, module in list(model.named_modules()):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
-                    print(mod_name, name)
-                    # parameters_to_prune.append((module, 'weight'))
-                    module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
-        # prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
+                    # print(mod_name, name)
+                    if prune.is_pruned(module): prune.remove(module, 'weight')
+                    if args.prune == 'global': parameters_to_prune.append((module, name))
+                    elif args.prune == 'l1': module = prune.l1_unstructured(module, name=name, amount=args.prune_eval)
+                    elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
+        if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
 
         countZeroWeights(model)
 
