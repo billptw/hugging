@@ -335,8 +335,8 @@ def prune_train(model, args):
                     elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_train)
                     elif args.prune == 'random': prune.random_unstructured(module, name=name, amount=args.prune_train)
                     # print('weights after {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-                if prune.is_pruned(module): 
-                    prune.remove(module, 'weight')
+                # if prune.is_pruned(module): 
+                #     prune.remove(module, 'weight')
                     # print('removed',mod_name)
         if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
     countZeroWeights(model)
@@ -457,8 +457,8 @@ def countZeroWeights(model):
     pruned = 0
     for mod_name, module in list(model.named_modules()):
         for name, value in list(module.named_parameters()):
-            if name in ['weight']:
-                pruned += float(torch.sum(module.weight == 0))
+            if name in ['weight_mask']:
+                pruned += float(torch.sum(module.weight_mask == 0))
     zeros = 0
     for param in model.parameters():
         if param is not None:
