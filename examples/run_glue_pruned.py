@@ -421,8 +421,8 @@ def countZeroWeights(model):
     pruned = 0
     # for mod_name, module in list(model.named_modules()):
     for name, value in list(model.named_parameters()):
-        if name in ['weight']:
-            pruned += float(torch.sum(value == 0))
+        # if name in ['weight']:
+        pruned += float(torch.sum(value == 0))
     print('classifier pruned', float(torch.sum(model.classifier.weight == 0)))
     zeros = 0
     for param in model.parameters():
