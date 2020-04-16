@@ -382,7 +382,6 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     prune_model(model, args, 'eval')
 
-
     # if args.prune_eval > 0:
     #     print('Pruning {} %'.format(args.prune_eval*100))
     #     if args.prune == 'global': print('Global Pruning')
@@ -464,9 +463,6 @@ def evaluate(args, model, tokenizer, prefix=""):
             for key in sorted(result.keys()):
                 logger.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
-
-    countZeroWeights(model)
-
     return results
 
 def zero(model):
@@ -761,7 +757,6 @@ def main():
             result = evaluate(args, model, tokenizer, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
             results.update(result)
-            # countZeroWeights(model)
     return results
 
 
