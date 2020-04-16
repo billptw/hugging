@@ -222,10 +222,10 @@ def train(args, train_dataset, model, tokenizer):
         #     if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
 
         # countZeroWeights(model)
+        
+        prune_train(model, args)
     
         for step, batch in enumerate(epoch_iterator):
-            prune_train(model, args)
-
             # Skip past any already trained steps if resuming training
             if steps_trained_in_current_epoch > 0:
                 steps_trained_in_current_epoch -= 1
