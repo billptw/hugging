@@ -344,9 +344,9 @@ def prune_model(model, args, type):
                     elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_train)
                     elif args.prune == 'random': prune.random_unstructured(module, name=name, amount=args.prune_train)
                     print('weights after {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-                    # if prune.is_pruned(module): 
-                    #     prune.remove(module, 'weight')
-                        # print('removed',mod_name)
+                    if prune.is_pruned(module): 
+                        prune.remove(module, 'weight')
+                        print('removed',mod_name)
             if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
     elif type == 'eval':    
         if args.prune_eval > 0:
