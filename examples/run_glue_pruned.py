@@ -342,9 +342,9 @@ def evaluate(args, model, tokenizer, prefix=""):
                     elif args.prune == 'l1': module = prune.l1_unstructured(module, name=name, amount=args.prune_eval)
                     elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
         if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
-        print('encoder 11 before', float(torch.sum(model.bert.encoder.layer.11.attention.self.query.weight == 0)))
-        prune.(model.bert.encoder.layer.11.attention.self.query, 'weight', amount=args.prune_eval)
-        print('encoder 11 pruned', float(torch.sum(model.bert.encoder.layer.11.attention.self.query.weight == 0)))
+        print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
+        prune.(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
+        print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
 
 
 
