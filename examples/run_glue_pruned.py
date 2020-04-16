@@ -337,16 +337,17 @@ def evaluate(args, model, tokenizer, prefix=""):
             for name, value in list(module.named_parameters()):
                 if name in ['weight']:
                     print(mod_name, name)
-                    print('weights before', float(torch.sum(module.weight == 0)))
+                    print('weights before {}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
                     if prune.is_pruned(module): prune.remove(module, 'weight')
                     if args.prune == 'global': parameters_to_prune.append((module, name))
                     elif args.prune == 'l1': module = prune.l1_unstructured(module, name=name, amount=args.prune_eval)
                     elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
-                    print('weights pruned', float(torch.sum(module.weight == 0)))
+                    print('weights pruned {}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+
         if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
-        print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
-        prune.l1_unstructured(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
-        print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
+        # print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
+        # prune.l1_unstructured(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
+        # print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
 
 
 
