@@ -457,9 +457,9 @@ def countZeroWeights(model):
     print('Total size:', total_params)
     pruned = 0
     for mod_name, module in list(model.named_modules()):
-        for name, value in list(module.named_parameters()):
-            if name in ['weight_mask']:
-                pruned += float(torch.sum(module.weight_mask == 0))
+        # for name, value in list(module.named_parameters()):
+        if hasattr(module, 'weight_mask'):
+            pruned += float(torch.sum(module.weight_mask == 0))
     zeros = 0
     for param in model.parameters():
         if param is not None:
