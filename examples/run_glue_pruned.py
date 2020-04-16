@@ -349,7 +349,12 @@ def evaluate(args, model, tokenizer, prefix=""):
         # prune.l1_unstructured(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
         # print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
 
-
+        pruned = 0
+        for mod_name, module in list(model.named_modules()):
+            for name, value in list(module.named_parameters()):
+                if name in ['weight']:
+                    pruned += float(torch.sum(module.weight == 0))
+        print('inside pruned',pruned)
 
         countZeroWeights(model)
 
