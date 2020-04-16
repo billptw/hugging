@@ -224,7 +224,7 @@ def train(args, train_dataset, model, tokenizer):
         # countZeroWeights(model)
     
         for step, batch in enumerate(epoch_iterator):
-            prune_train(model)
+            prune_train(model, args)
 
             # Skip past any already trained steps if resuming training
             if steps_trained_in_current_epoch > 0:
@@ -319,7 +319,7 @@ def train(args, train_dataset, model, tokenizer):
 
     return global_step, tr_loss / global_step
 
-def prune_train(model):
+def prune_train(model, args):
     if args.prune_train > 0:
         print('Pruning {} %'.format(args.prune_train*100))
         if args.prune == 'global': print('Global Pruning')
