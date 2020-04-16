@@ -226,10 +226,6 @@ def train(args, train_dataset, model, tokenizer):
         
         prune_model(model, args, 'train')
 
-        for mod_name, module in list(model.named_modules()):
-            for name, value in list(module.named_parameters()):
-                print(mod_name, name)
-    
         for step, batch in enumerate(epoch_iterator):
             # Skip past any already trained steps if resuming training
             if steps_trained_in_current_epoch > 0:
@@ -381,9 +377,9 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     prune_model(model, args, 'eval')
 
-    for mod_name, module in list(model.named_modules()):
-        for name, value in list(module.named_parameters()):
-            print(mod_name, name)
+    # for mod_name, module in list(model.named_modules()):
+    #     for name, value in list(module.named_parameters()):
+    #         print(mod_name, name)
 
     # if args.prune_eval > 0:
     #     print('Pruning {} %'.format(args.prune_eval*100))
