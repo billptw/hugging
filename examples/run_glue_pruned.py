@@ -222,8 +222,16 @@ def train(args, train_dataset, model, tokenizer):
         #     if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
 
         # countZeroWeights(model)
+
+        for mod_name, module in list(model.named_modules()):
+            for name, value in list(module.named_parameters()):
+                print(mod_name, name)
         
         prune_model(model, args, 'train')
+
+        for mod_name, module in list(model.named_modules()):
+            for name, value in list(module.named_parameters()):
+                print(mod_name, name)
     
         for step, batch in enumerate(epoch_iterator):
             # Skip past any already trained steps if resuming training
@@ -297,6 +305,12 @@ def train(args, train_dataset, model, tokenizer):
                     model_to_save = (
                         model.module if hasattr(model, "module") else model
                     )  # Take care of distributed/parallel training
+
+                    for mod_name, module in list(model.named_modules()):
+                        for name, value in list(module.named_parameters()):
+                            print(mod_name, name)
+
+
                     model_to_save.save_pretrained(output_dir)
                     tokenizer.save_pretrained(output_dir)
 
