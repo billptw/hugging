@@ -726,7 +726,9 @@ def main():
         # Load a trained model and vocabulary that you have fine-tuned
         # model = AutoModelForSequenceClassification.from_pretrained(args.output_dir)
         # tokenizer = AutoTokenizer.from_pretrained(args.output_dir)
-        model = model_class.from_pretrained(args.output_dir)
+
+        
+        # model = model_class.from_pretrained(args.output_dir)
         tokenizer = tokenizer_class.from_pretrained(args.output_dir)
         model.to(args.device)
 
