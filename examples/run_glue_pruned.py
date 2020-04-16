@@ -340,7 +340,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                     print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
                     if prune.is_pruned(module): prune.remove(module, 'weight')
                     if args.prune == 'global': parameters_to_prune.append((module, name))
-                    elif args.prune == 'l1': module = prune.l1_unstructured(module, name=name, amount=args.prune_eval)
+                    elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_eval)
                     elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
                     print('weights pruned {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
 
