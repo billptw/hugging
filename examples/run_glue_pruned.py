@@ -290,6 +290,13 @@ def train(args, train_dataset, model, tokenizer):
                     print(json.dumps({**logs, **{"step": global_step}}))
 
                 if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
+
+                    for mod_name, module in list(model.named_modules()):
+                        if prune.is_pruned(module): 
+                            prune.remove(module, 'weight')
+                            print('removed', mod_name)
+
+
                     # Save model checkpoint
                     output_dir = os.path.join(args.output_dir, "checkpoint-{}".format(global_step))
                     if not os.path.exists(output_dir):
@@ -726,9 +733,7 @@ def main():
         # Load a trained model and vocabulary that you have fine-tuned
         # model = AutoModelForSequenceClassification.from_pretrained(args.output_dir)
         # tokenizer = AutoTokenizer.from_pretrained(args.output_dir)
-
-        
-        # model = model_class.from_pretrained(args.output_dir)
+        model = model_class.from_pretrained(args.output_dir)
         tokenizer = tokenizer_class.from_pretrained(args.output_dir)
         model.to(args.device)
 
