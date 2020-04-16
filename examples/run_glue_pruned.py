@@ -223,7 +223,7 @@ def train(args, train_dataset, model, tokenizer):
 
         # countZeroWeights(model)
         
-        prune_train(model, args)
+        prune(model, args, 'train')
     
         for step, batch in enumerate(epoch_iterator):
             # Skip past any already trained steps if resuming training
@@ -319,9 +319,31 @@ def train(args, train_dataset, model, tokenizer):
 
     return global_step, tr_loss / global_step
 
-def prune_train(model, args):
-    if args.prune_train > 0:
-        print('Pruning {} %'.format(args.prune_train*100))
+def prune(model, args, type):
+    if type == 'train':
+        if args.prune_train > 0:
+            print('Pruning {} %'.format(args.prune_train*100))
+            if args.prune == 'global': print('Global Pruning')
+            elif args.prune == 'l1': print('L1 Pruning')
+            elif args.prune == 'random': print('Random Pruning')
+            parameters_to_prune = []
+            for mod_name, module in list(model.named_modules()):
+            # for name, value in list(module.named_parameters()):
+                if hasattr(module, 'weight') or hasattr(module, 'weight_mask'):
+                    print(mod_name)
+                    name = 'weight'
+                    print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+                    if args.prune == 'global': parameters_to_prune.append((module, name))
+                    elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_train)
+                    elif args.prune == 'random': prune.random_unstructured(module, name=name, amount=args.prune_train)
+                    print('weights after {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+                    # if prune.is_pruned(module): 
+                    #     prune.remove(module, 'weight')
+                        # print('removed',mod_name)
+            if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
+    elif type == 'eval':    
+        if args.prune_eval > 0:
+        print('Pruning {} %'.format(args.prune_eval*100))
         if args.prune == 'global': print('Global Pruning')
         elif args.prune == 'l1': print('L1 Pruning')
         elif args.prune == 'random': print('Random Pruning')
@@ -333,13 +355,13 @@ def prune_train(model, args):
                 name = 'weight'
                 print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
                 if args.prune == 'global': parameters_to_prune.append((module, name))
-                elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_train)
-                elif args.prune == 'random': prune.random_unstructured(module, name=name, amount=args.prune_train)
+                elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_eval)
+                elif args.prune == 'random': prune.random_unstructured(module, name=name, amount=args.prune_eval)
                 print('weights after {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
                 # if prune.is_pruned(module): 
                 #     prune.remove(module, 'weight')
                     # print('removed',mod_name)
-        if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
+        if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
     countZeroWeights(model)
 
 def evaluate(args, model, tokenizer, prefix=""):
@@ -351,36 +373,30 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     countZeroWeights(model)
 
-    if args.prune_eval > 0:
-        print('Pruning {} %'.format(args.prune_eval*100))
-        if args.prune == 'global': print('Global Pruning')
-        elif args.prune == 'l1': print('L1 Pruning')
-        elif args.prune == 'random': print('Random Pruning')
-        parameters_to_prune = []
-        for mod_name, module in list(model.named_modules()):
-            for name, value in list(module.named_parameters()):
-                if name in ['weight']:
-                    print(mod_name, name)
-                    print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-                    # if prune.is_pruned(module): prune.remove(module, 'weight')
-                    if args.prune == 'global': parameters_to_prune.append((module, name))
-                    elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_eval)
-                    elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
-                    print('weights pruned {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+    prune(model, args, 'eval')
 
-        if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
+
+    # if args.prune_eval > 0:
+    #     print('Pruning {} %'.format(args.prune_eval*100))
+    #     if args.prune == 'global': print('Global Pruning')
+    #     elif args.prune == 'l1': print('L1 Pruning')
+    #     elif args.prune == 'random': print('Random Pruning')
+    #     parameters_to_prune = []
+    #     for mod_name, module in list(model.named_modules()):
+    #         for name, value in list(module.named_parameters()):
+    #             if name in ['weight']:
+    #                 print(mod_name, name)
+    #                 print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+    #                 # if prune.is_pruned(module): prune.remove(module, 'weight')
+    #                 if args.prune == 'global': parameters_to_prune.append((module, name))
+    #                 elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_eval)
+    #                 elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
+    #                 print('weights pruned {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+
+    #     if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
         # print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
         # prune.l1_unstructured(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
         # print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
-
-        pruned = 0
-        for mod_name, module in list(model.named_modules()):
-            for name, value in list(module.named_parameters()):
-                if name in ['weight']:
-                    pruned += float(torch.sum(module.weight == 0))
-        print('inside pruned',pruned)
-
-        countZeroWeights(model)
 
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
