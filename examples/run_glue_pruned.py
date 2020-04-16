@@ -381,6 +381,10 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     prune_model(model, args, 'eval')
 
+    for mod_name, module in list(model.named_modules()):
+        for name, value in list(module.named_parameters()):
+            print(mod_name, name)
+
     # if args.prune_eval > 0:
     #     print('Pruning {} %'.format(args.prune_eval*100))
     #     if args.prune == 'global': print('Global Pruning')
