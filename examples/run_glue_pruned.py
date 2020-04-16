@@ -95,7 +95,6 @@ ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (
                                                                                 RobertaConfig, DistilBertConfig)), ())
 
 
-
 def set_seed(args):
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -221,11 +220,9 @@ def train(args, train_dataset, model, tokenizer):
         #                 print('weights after {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
         #     if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
 
-        # countZeroWeights(model)
-
-        for mod_name, module in list(model.named_modules()):
-            for name, value in list(module.named_parameters()):
-                print(mod_name, name)
+        # for mod_name, module in list(model.named_modules()):
+        #     for name, value in list(module.named_parameters()):
+        #         print(mod_name, name)
         
         prune_model(model, args, 'train')
 
@@ -474,8 +471,8 @@ def zero(model):
 
 def countZeroWeights(model):
     params = list(model.parameters())
+    trainable_params = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters())])
     total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-    print('Total size:', total_params)
     pruned = 0
     for mod_name, module in list(model.named_modules()):
         # for name, value in list(module.named_parameters()):
@@ -489,6 +486,8 @@ def countZeroWeights(model):
     print('% zeroed:', zeros/total_params*100)
     print('Numel pruned:', pruned)
     print('% pruned:', pruned/total_params*100)
+    print('Total size:', total_params)
+    print('Model trainable parameters:', trainable_params)
 
 def model_size(model):
     params = list(model.parameters())
@@ -701,9 +700,6 @@ def main():
     # print('Model trainable parameters:', trainable_params)
     # print('Model named parameters:', len(named_params))
 
-    # for name, values in list(model.named_parameters()):
-    #     print("{:<55} {:>12}".format(name, str(tuple(values.size()))))
-
     # Training
     if args.do_train:
         train_dataset = load_and_cache_examples(args, args.task_name, tokenizer, evaluate=False)
@@ -753,20 +749,7 @@ def main():
             prefix = checkpoint.split("/")[-1] if checkpoint.find("checkpoint") != -1 else ""
 
             # model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
-
             model = model_class.from_pretrained(checkpoint)
-
-            for mod_name, module in list(model.named_modules()):
-                for name, value in list(module.named_parameters()):
-                    print(mod_name, name)
-
-                # if prune.is_pruned(module): 
-                #     prune.remove(module, 'weight')
-                #     print('removed', mod_name)
-
-            countZeroWeights(model)
-
-
             model.to(args.device)
 
             result = evaluate(args, model, tokenizer, prefix=prefix)
