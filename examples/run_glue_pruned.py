@@ -331,13 +331,13 @@ def prune_train(model, args):
                 if name in ['weight']:
                     print(mod_name, name)
                     print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-                    if prune.is_pruned(module): 
-                        prune.remove(module, 'weight')
-                        print('removed',mod_name)
                     if args.prune == 'global': parameters_to_prune.append((module, 'weight'))
                     elif args.prune == 'l1': module = prune.l1_unstructured(module, name='weight', amount=args.prune_train)
                     elif args.prune == 'random': module = prune.random_unstructured(module, name='weight', amount=args.prune_train)
                     print('weights after {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
+                if prune.is_pruned(module): 
+                    prune.remove(module, 'weight')
+                    print('removed',mod_name)
         if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_train)
     countZeroWeights(model)
 
