@@ -223,7 +223,7 @@ def train(args, train_dataset, model, tokenizer):
 
         # countZeroWeights(model)
         
-        prune(model, args, 'train')
+        prune_model(model, args, 'train')
     
         for step, batch in enumerate(epoch_iterator):
             # Skip past any already trained steps if resuming training
@@ -319,7 +319,7 @@ def train(args, train_dataset, model, tokenizer):
 
     return global_step, tr_loss / global_step
 
-def prune(model, args, type):
+def prune_model(model, args, type):
     if type == 'train':
         if args.prune_train > 0:
             print('Pruning {} %'.format(args.prune_train*100))
@@ -373,7 +373,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     countZeroWeights(model)
 
-    prune(model, args, 'eval')
+    prune_model(model, args, 'eval')
 
 
     # if args.prune_eval > 0:
