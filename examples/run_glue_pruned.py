@@ -578,7 +578,7 @@ def main():
     # but soon, we'll keep distinct sets of args, with a cleaner separation of concerns.
     args = argparse.Namespace(**vars(model_args), **vars(dataprocessing_args), **vars(training_args))
 
-    parser.add_argument('--freeze', action='store_true')
+    parser.add_argument('--freeze_bert', action='store_true')
     parser.add_argument('--prune_train', type=float, default=0.0)
     parser.add_argument('--prune_eval', type=float, default=0.0)
     parser.add_argument('--prune', type=str, default='random', help="default=random, global, l1")
@@ -671,7 +671,7 @@ def main():
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
 
-    if args.freeze:
+    if args.freeze_bert:
         print('Freezing bert weights')
         for param in model.bert.parameters():
             param.requires_grad = False
