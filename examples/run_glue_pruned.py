@@ -667,12 +667,12 @@ def main():
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
 
+    print('Model Size:')
     for mod_name, module in list(model.named_modules()):
-        print("Model:")
         size = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, module.parameters())])
         print(mod_name, size)
-        for name, value in list(module.named_parameters()):
-            print(mod_name, name)
+        # for name, value in list(module.named_parameters()):
+        #     print(mod_name, name)
 
     if args.freeze_bert:
         print('Freezing bert weights')
