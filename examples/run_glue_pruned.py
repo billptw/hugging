@@ -388,32 +388,6 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     prune_model(model, args, 'eval')
 
-    # for mod_name, module in list(model.named_modules()):
-    #     for name, value in list(module.named_parameters()):
-    #         print(mod_name, name)
-
-    # if args.prune_eval > 0:
-    #     print('Pruning {} %'.format(args.prune_eval*100))
-    #     if args.prune == 'global': print('Global Pruning')
-    #     elif args.prune == 'l1': print('L1 Pruning')
-    #     elif args.prune == 'random': print('Random Pruning')
-    #     parameters_to_prune = []
-    #     for mod_name, module in list(model.named_modules()):
-    #         for name, value in list(module.named_parameters()):
-    #             if name in ['weight']:
-    #                 print(mod_name, name)
-    #                 print('weights before {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-    #                 # if prune.is_pruned(module): prune.remove(module, 'weight')
-    #                 if args.prune == 'global': parameters_to_prune.append((module, name))
-    #                 elif args.prune == 'l1': prune.l1_unstructured(module, name=name, amount=args.prune_eval)
-    #                 elif args.prune == 'random': module = prune.random_unstructured(module, name=name, amount=args.prune_eval)
-    #                 print('weights pruned {:.3f}%'.format(float(torch.sum(module.weight == 0)) * 100 / float(module.weight.nelement())))
-
-    #     if args.prune == 'global': prune.global_unstructured(parameters_to_prune, pruning_method=prune.L1Unstructured, amount=args.prune_eval)
-        # print('embeddings before', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
-        # prune.l1_unstructured(model.bert.embeddings.word_embeddings, 'weight', amount=args.prune_eval)
-        # print('embeddings pruned', float(torch.sum(model.bert.embeddings.word_embeddings.weight == 0)))
-
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
         eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=True)
 
@@ -604,6 +578,7 @@ def main():
     # but soon, we'll keep distinct sets of args, with a cleaner separation of concerns.
     args = argparse.Namespace(**vars(model_args), **vars(dataprocessing_args), **vars(training_args))
 
+    parser.add_argument('--freeze', action='store_true')
     parser.add_argument('--prune_train', type=float, default=0.0)
     parser.add_argument('--prune_eval', type=float, default=0.0)
     parser.add_argument('--prune', type=str, default='random', help="default=random, global, l1")
@@ -696,20 +671,18 @@ def main():
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
 
+    if args.freeze:
+        print('Freezing bert weights')
+        for param in model.bert.parameters():
+            param.requires_grad = False
+
+        for param in model.named_parameters():
+            if not param.requires_grad: print(param,'frozen')
+
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
     model.to(args.device)
-
-    logger.info("Training/evaluation parameters %s", args)
-
-    # params = list(model.parameters())
-    # named_params = list(model.named_parameters())
-    # total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-    # trainable_params = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters())])
-    # print('Model total parameters:', total_params)
-    # print('Model trainable parameters:', trainable_params)
-    # print('Model named parameters:', len(named_params))
 
     # Training
     if args.do_train:
