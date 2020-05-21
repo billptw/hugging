@@ -669,7 +669,7 @@ def main():
 
     for mod_name, module in list(model.named_modules()):
         print("Model:")
-        size = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters()))
+        size = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters())])
         print(mod_name, size)
         for name, value in list(module.named_parameters()):
             print(mod_name, name)
