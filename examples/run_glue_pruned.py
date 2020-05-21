@@ -674,8 +674,9 @@ def main():
     if args.freeze_bert:
         print('Freezing bert weights')
         for param in model.bert.named_parameters():
-            param.requires_grad = False
-            print(name)
+            if param.requires_grad:
+                param.requires_grad = False
+                print(name)
 
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
