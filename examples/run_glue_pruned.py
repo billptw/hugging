@@ -677,7 +677,8 @@ def main():
             param.requires_grad = False
 
         for param in model.named_parameters():
-            if not param.requires_grad: print(param,'frozen')
+            print(param)
+            # if not param.requires_grad: print(param,'frozen')
 
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
