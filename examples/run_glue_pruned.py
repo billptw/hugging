@@ -673,7 +673,7 @@ def main():
 
     if args.freeze_bert:
         print('Freezing bert weights')
-        for param in model.bert.named_parameters():
+        for name, param in model.bert.named_parameters():
             if param.requires_grad:
                 param.requires_grad = False
                 print(name)
