@@ -448,11 +448,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                 logger.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
     return results
-
-def zero(model):
-    print('Zeroing Model...')
-    for param in list(model.classifier.parameters()):
-        param.data.fill_(0)
+    
 
 def countZeroWeights(model):
     params = list(model.parameters())
@@ -670,6 +666,12 @@ def main():
                                         from_tf=bool('.ckpt' in args.model_name_or_path),
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
+
+    for mod_name, module in list(model.named_modules()):
+        size = sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters()))
+        print(mod_name, size)
+        for name, value in list(module.named_parameters()):
+            print(mod_name, name)
 
     if args.freeze_bert:
         print('Freezing bert weights')
